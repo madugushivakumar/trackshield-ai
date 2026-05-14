@@ -7,9 +7,11 @@ import 'package:latlong2/latlong.dart';
 import '../../data/firebase/firebase_tracking_service.dart';
 import '../../data/services/location_service.dart';
 
+import '../../../../core/background/gps_background_service.dart';
+
 class TrackingPage extends StatefulWidget {
 
-  TrackingPage({super.key});
+  const TrackingPage({super.key});
 
   @override
   State<TrackingPage> createState() =>
@@ -19,58 +21,119 @@ class TrackingPage extends StatefulWidget {
 class _TrackingPageState
     extends State<TrackingPage> {
 
+  // =========================================
+  // DEFAULT LOCATION
+  // =========================================
+
   double latitude = 17.3850;
   double longitude = 78.4867;
+
+  // =========================================
+  // TRACKING STATE
+  // =========================================
 
   bool isTracking = false;
 
   StreamSubscription? stream;
 
-  // =====================================
+  final MapController mapController =
+      MapController();
+
+  // =========================================
   // START TRACKING
-  // =====================================
-  void startTracking() {
+  // =========================================
+
+  Future<void> startTracking() async {
+
+    // PREVENT MULTIPLE STREAMS
+
+    if (isTracking) return;
 
     setState(() {
       isTracking = true;
     });
 
+    // =====================================
+    // START BACKGROUND SERVICE
+    // =====================================
+
+    await GPSBackgroundService
+        .startService();
+
+    // =====================================
+    // LIVE LOCATION STREAM
+    // =====================================
+
     stream = LocationService
         .getLiveLocation()
-        .listen((position) async {
+        .listen(
 
-      setState(() {
+      (position) async {
 
         latitude = position.latitude;
         longitude = position.longitude;
-      });
 
-      // =====================================
-      // SEND LOCATION TO FIREBASE
-      // =====================================
-      await FirebaseTrackingService
-          .updateLocation(
+        // =================================
+        // UPDATE UI
+        // =================================
 
-        deviceId: "TS-1001",
+        if (mounted) {
 
-        latitude: latitude,
+          setState(() {});
+        }
 
-        longitude: longitude,
-      );
-    });
+        // =================================
+        // MOVE MAP CAMERA
+        // =================================
+
+        mapController.move(
+
+          LatLng(latitude, longitude),
+
+          15,
+        );
+
+        // =================================
+        // FIREBASE REALTIME SYNC
+        // =================================
+
+        await FirebaseTrackingService
+            .updateLocation(
+
+          deviceId: "TS-1001",
+
+          latitude: latitude,
+
+          longitude: longitude,
+        );
+      },
+
+      onError: (error) {
+
+        debugPrint(
+          "Tracking Error: $error",
+        );
+      },
+    );
   }
 
-  // =====================================
+  // =========================================
   // STOP TRACKING
-  // =====================================
-  void stopTracking() {
+  // =========================================
 
-    stream?.cancel();
+  Future<void> stopTracking() async {
+
+    await stream?.cancel();
 
     setState(() {
+
       isTracking = false;
     });
   }
+
+  // =========================================
+  // DISPOSE
+  // =========================================
 
   @override
   void dispose() {
@@ -79,6 +142,10 @@ class _TrackingPageState
 
     super.dispose();
   }
+
+  // =========================================
+  // UI
+  // =========================================
 
   @override
   Widget build(BuildContext context) {
@@ -90,17 +157,20 @@ class _TrackingPageState
         title: const Text(
           "Live Tracking",
         ),
+
+        centerTitle: true,
       ),
 
       body: Column(
 
         children: [
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 15),
 
-          // =====================================
-          // BUTTONS
-          // =====================================
+          // =================================
+          // CONTROL BUTTONS
+          // =================================
+
           Row(
 
             children: [
@@ -180,12 +250,16 @@ class _TrackingPageState
             ],
           ),
 
-          // =====================================
-          // MAP
-          // =====================================
+          // =================================
+          // LIVE MAP
+          // =================================
+
           Expanded(
 
             child: FlutterMap(
+
+              mapController:
+                  mapController,
 
               options: MapOptions(
 
@@ -200,6 +274,10 @@ class _TrackingPageState
 
               children: [
 
+                // =============================
+                // MAP TILES
+                // =============================
+
                 TileLayer(
 
                   urlTemplate:
@@ -208,6 +286,10 @@ class _TrackingPageState
                   userAgentPackageName:
                       'com.trackshield.ai',
                 ),
+
+                // =============================
+                // DEVICE MARKER
+                // =============================
 
                 MarkerLayer(
 
@@ -238,9 +320,10 @@ class _TrackingPageState
             ),
           ),
 
-          // =====================================
-          // LOCATION INFO
-          // =====================================
+          // =================================
+          // LOCATION PANEL
+          // =================================
+
           Container(
 
             width: double.infinity,
@@ -285,25 +368,62 @@ class _TrackingPageState
 
                 const SizedBox(height: 15),
 
-                Text(
+                Row(
 
-                  isTracking
-                      ? "Realtime Tracking Active"
-                      : "Tracking Stopped",
+                  children: [
 
-                  style: TextStyle(
+                    Icon(
 
-                    color:
-                        isTracking
-                            ? Colors.green
-                            : Colors.red,
+                      isTracking
+                          ? Icons.gps_fixed
+                          : Icons.gps_off,
 
-                    fontSize: 18,
+                      color:
+                          isTracking
+                              ? Colors.green
+                              : Colors.red,
+                    ),
 
-                    fontWeight:
-                        FontWeight.bold,
-                  ),
+                    const SizedBox(width: 10),
+
+                    Text(
+
+                      isTracking
+                          ? "Realtime Tracking Active"
+                          : "Tracking Stopped",
+
+                      style: TextStyle(
+
+                        color:
+                            isTracking
+                                ? Colors.green
+                                : Colors.red,
+
+                        fontSize: 18,
+
+                        fontWeight:
+                            FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
+
+                const SizedBox(height: 10),
+
+                if (isTracking)
+
+                  const Text(
+
+                    "Background GPS Tracking Enabled",
+
+                    style: TextStyle(
+
+                      color: Colors.blue,
+
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
+                  ),
               ],
             ),
           ),
