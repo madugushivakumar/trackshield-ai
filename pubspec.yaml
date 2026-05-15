@@ -87,6 +87,14 @@ dependencies:
   sim_data: ^0.0.2
   firebase_storage: ^13.4.1
   web_socket_channel: ^3.0.3
+  battery_plus: ^7.0.0
+  flutter_dotenv: ^6.0.1
+  provider: ^6.1.5+1
+  telephony: ^0.2.0
+  tflite_flutter: ^0.12.1
+  collection: ^1.19.1
+  jailbreak_root_detection: ^1.2.0+1
+  flutter_windowmanager: ^0.2.0
 
 dev_dependencies:
   flutter_test:
@@ -100,17 +108,12 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.15.0
   injectable_generator: ^3.0.2
+ 
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
-# The following section is specific to Flutter packages.
-flutter:
 
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
-  uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -142,3 +145,30 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - .env
+    - assets/images/
+    - assets/icons/
+    - assets/animations/
+
+# =====================================
+# SPLASH CONFIG
+# =====================================
+flutter_native_splash:
+  color: "#050816"
+  image: assets/icons/app_logo.png
+  android: true
+  ios: true
+  web: true
+
+# =====================================
+# APP ICON CONFIG
+# =====================================
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icons/app_logo.png

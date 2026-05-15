@@ -10,6 +10,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../../face_ai/data/services/face_ai_service.dart';
 
+import 'video_recording_service.dart';
+
+import 'surveillance_storage_service.dart';
+
+import 'camera_health_service.dart';
+
 class CameraAIService {
 
   static final FirebaseDatabase
@@ -32,6 +38,9 @@ class CameraAIService {
   static bool
       _isCapturing = false;
 
+  static bool
+      _isRecording = false;
+
   // =====================================
   // INITIALIZE CAMERA
   // =====================================
@@ -40,9 +49,9 @@ class CameraAIService {
 
     try {
 
-      // =================================
-      // PREVENT MULTIPLE INITIALIZATION
-      // =================================
+      // ===============================
+      // PREVENT DUPLICATE INIT
+      // ===============================
       if (_isInitialized) {
 
         print(
@@ -52,9 +61,9 @@ class CameraAIService {
         return;
       }
 
-      // =================================
-      // WEB INFO
-      // =================================
+      // ===============================
+      // WEB MODE
+      // ===============================
       if (kIsWeb) {
 
         print(
@@ -62,39 +71,47 @@ class CameraAIService {
         );
       }
 
-      // =================================
-      // AVAILABLE CAMERAS
-      // =================================
+      // ===============================
+      // LOAD CAMERAS
+      // ===============================
       _cameras =
           await availableCameras();
 
       if (_cameras.isEmpty) {
 
         print(
-          "No cameras found",
+          "No cameras available",
         );
 
         return;
       }
 
-      // =================================
+      // ===============================
       // CAMERA CONTROLLER
-      // =================================
+      // ===============================
       _controller =
           CameraController(
 
         _cameras.first,
 
-        ResolutionPreset.medium,
+        ResolutionPreset.high,
 
-        enableAudio: false,
+        enableAudio: true,
       );
 
-      // =================================
-      // INITIALIZE CAMERA
-      // =================================
+      // ===============================
+      // INITIALIZE CONTROLLER
+      // ===============================
       await _controller!
           .initialize();
+
+      // ===============================
+      // RECORDING ENGINE
+      // ===============================
+      VideoRecordingService
+          .setController(
+        _controller!,
+      );
 
       _isInitialized = true;
 
@@ -111,19 +128,13 @@ class CameraAIService {
   }
 
   // =====================================
-  // CAPTURE INTRUDER
+  // START SURVEILLANCE
   // =====================================
   static Future<void>
-      captureIntruder({
-
-    required String deviceId,
-  }) async {
+      startSurveillance() async {
 
     try {
 
-      // =================================
-      // CHECK INITIALIZATION
-      // =================================
       if (!_isInitialized ||
           _controller == null) {
 
@@ -134,13 +145,107 @@ class CameraAIService {
         return;
       }
 
-      // =================================
-      // PREVENT MULTIPLE CAPTURES
-      // =================================
+      if (_isRecording) {
+
+        print(
+          "Recording already active",
+        );
+
+        return;
+      }
+
+      await VideoRecordingService
+          .startRecording();
+
+      _isRecording = true;
+
+      print(
+        "SURVEILLANCE STARTED",
+      );
+
+    } catch (e) {
+
+      print(
+        "START SURVEILLANCE ERROR: $e",
+      );
+    }
+  }
+
+  // =====================================
+  // STOP SURVEILLANCE
+  // =====================================
+  static Future<void>
+      stopSurveillance({
+
+    required String deviceId,
+  }) async {
+
+    try {
+
+      if (!_isRecording) {
+        return;
+      }
+
+      final file =
+          await VideoRecordingService
+              .stopRecording();
+
+      _isRecording = false;
+
+      if (file != null) {
+
+        await SurveillanceStorageService
+            .uploadRecording(
+
+          deviceId: deviceId,
+
+          file: file,
+        );
+      }
+
+      print(
+        "SURVEILLANCE STOPPED",
+      );
+
+    } catch (e) {
+
+      print(
+        "STOP SURVEILLANCE ERROR: $e",
+      );
+    }
+  }
+
+  // =====================================
+  // CAPTURE INTRUDER
+  // =====================================
+  static Future<void>
+      captureIntruder({
+
+    required String deviceId,
+  }) async {
+
+    try {
+
+      // ===============================
+      // INITIALIZATION CHECK
+      // ===============================
+      if (!_isInitialized ||
+          _controller == null) {
+
+        print(
+          "Camera not initialized",
+        );
+
+        return;
+      }
+
+      // ===============================
+      // LOCK CAPTURE
+      // ===============================
       if (_isCapturing) {
 
         print(
-          "Capture already in progress",
+          "Capture already running",
         );
 
         return;
@@ -148,25 +253,25 @@ class CameraAIService {
 
       _isCapturing = true;
 
-      // =================================
-      // CAMERA STATE CHECK
-      // =================================
+      // ===============================
+      // CONTROLLER VALIDATION
+      // ===============================
       if (!_controller!
           .value
           .isInitialized) {
 
-        print(
-          "Camera controller invalid",
-        );
-
         _isCapturing = false;
+
+        print(
+          "Invalid controller state",
+        );
 
         return;
       }
 
-      // =================================
+      // ===============================
       // TAKE PICTURE
-      // =================================
+      // ===============================
       final XFile image =
           await _controller!
               .takePicture();
@@ -174,9 +279,9 @@ class CameraAIService {
       final File file =
           File(image.path);
 
-      // =================================
-      // FACE AI DETECTION
-      // =================================
+      // ===============================
+      // FACE DETECTION
+      // ===============================
       await FaceAIService
           .detectFaces(
 
@@ -185,9 +290,9 @@ class CameraAIService {
         deviceId: deviceId,
       );
 
-      // =================================
-      // STORAGE PATH
-      // =================================
+      // ===============================
+      // STORAGE
+      // ===============================
       final storageRef =
           _storage.ref().child(
 
@@ -195,9 +300,9 @@ class CameraAIService {
         "${DateTime.now().millisecondsSinceEpoch}.jpg",
       );
 
-      // =================================
-      // UPLOAD IMAGE
-      // =================================
+      // ===============================
+      // UPLOAD
+      // ===============================
       await storageRef.putFile(
         file,
       );
@@ -206,9 +311,9 @@ class CameraAIService {
           await storageRef
               .getDownloadURL();
 
-      // =================================
+      // ===============================
       // SAVE ALERT
-      // =================================
+      // ===============================
       await _database.ref(
 
         "intruder_alerts",
@@ -220,20 +325,20 @@ class CameraAIService {
         "imageUrl":
             imageUrl,
 
-        "timestamp":
-            DateTime.now()
-                .millisecondsSinceEpoch,
-
         "severity":
             "CRITICAL",
 
         "message":
             "Possible intruder detected",
+
+        "timestamp":
+            DateTime.now()
+                .millisecondsSinceEpoch,
       });
 
-      // =================================
-      // SOS ALERT
-      // =================================
+      // ===============================
+      // SOS ESCALATION
+      // ===============================
       await _database.ref(
         "sos_alerts",
       ).push().set({
@@ -250,7 +355,7 @@ class CameraAIService {
       });
 
       print(
-        "INTRUDER SNAPSHOT SAVED",
+        "INTRUDER CAPTURE COMPLETE",
       );
 
       _isCapturing = false;
@@ -263,6 +368,22 @@ class CameraAIService {
         "CAPTURE ERROR: $e",
       );
     }
+  }
+
+  // =====================================
+  // CAMERA HEALTH
+  // =====================================
+  static String healthStatus() {
+
+    return CameraHealthService
+        .getStatus(
+
+      initialized:
+          _isInitialized,
+
+      recording:
+          _isRecording,
+    );
   }
 
   // =====================================
@@ -282,6 +403,8 @@ class CameraAIService {
 
         _isInitialized = false;
 
+        _isRecording = false;
+
         print(
           "CAMERA DISPOSED",
         );
@@ -296,9 +419,17 @@ class CameraAIService {
   }
 
   // =====================================
-  // GET CONTROLLER
+  // GETTERS
   // =====================================
   static CameraController?
       get controller =>
           _controller;
+
+  static bool
+      get isInitialized =>
+          _isInitialized;
+
+  static bool
+      get isRecording =>
+          _isRecording;
 }

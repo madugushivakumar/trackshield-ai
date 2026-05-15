@@ -1,56 +1,125 @@
-import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-import '../../../../core/constants/api_constants.dart';
+import '../../../../core/storage/secure_storage_service.dart';
 
 class AuthService {
 
-  final Dio _dio = Dio();
+  static final FirebaseAuth
+      _auth =
+          FirebaseAuth.instance;
 
-
-  // REGISTER
-  Future<Response> registerUser({
-
-    required String fullName,
-    required String email,
-    required String password,
-
-  }) async {
-
-    final response = await _dio.post(
-
-      ApiConstants.register,
-
-      data: {
-
-        "fullName": fullName,
-        "email": email,
-        "password": password,
-      },
-    );
-
-    return response;
-  }
-
-
+  // =====================================
   // LOGIN
-  Future<Response> loginUser({
+  // =====================================
+  static Future<UserCredential?>
+      login({
 
     required String email,
-    required String password,
 
+    required String password,
   }) async {
 
-    final response = await _dio.post(
+    try {
 
-      ApiConstants.login,
+      final credential =
+          await _auth
+              .signInWithEmailAndPassword(
 
-      data: {
+        email: email,
 
-        "email": email,
-        "password": password,
-      },
-    );
+        password: password,
+      );
 
-    return response;
+      final token =
+          await credential.user!
+              .getIdToken();
+
+      if (token != null) {
+
+        await SecureStorageService
+            .saveToken(
+          token,
+        );
+      }
+
+      return credential;
+
+    } catch (e) {
+
+      print(
+        "LOGIN ERROR: $e",
+      );
+
+      return null;
+    }
   }
+
+  // =====================================
+  // REGISTER
+  // =====================================
+  static Future<UserCredential?>
+      register({
+
+    required String email,
+
+    required String password,
+  }) async {
+
+    try {
+
+      final credential =
+          await _auth
+              .createUserWithEmailAndPassword(
+
+        email: email,
+
+        password: password,
+      );
+
+      await credential.user!
+          .sendEmailVerification();
+
+      return credential;
+
+    } catch (e) {
+
+      print(
+        "REGISTER ERROR: $e",
+      );
+
+      return null;
+    }
+  }
+
+  // =====================================
+  // LOGOUT
+  // =====================================
+  static Future<void>
+      logout() async {
+
+    await SecureStorageService
+        .clear();
+
+    await _auth.signOut();
+  }
+
+  // =====================================
+  // RESET PASSWORD
+  // =====================================
+  static Future<void>
+      resetPassword(
+    String email,
+  ) async {
+
+    await _auth.sendPasswordResetEmail(
+      email: email,
+    );
+  }
+
+  // =====================================
+  // CURRENT USER
+  // =====================================
+  static User?
+      get currentUser =>
+          _auth.currentUser;
 }

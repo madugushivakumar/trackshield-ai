@@ -1,38 +1,116 @@
 import 'package:firebase_database/firebase_database.dart';
 
+import '../services/geofence_service.dart';
+
 class FirebaseTrackingService {
 
-  static final database =
-      FirebaseDatabase.instance.ref();
+  static final DatabaseReference
+      database =
+          FirebaseDatabase.instance.ref();
 
-  // SEND LOCATION
-  static Future<void> updateLocation({
+  // =====================================
+  // UPDATE LOCATION
+  // =====================================
+  static Future<void>
+      updateLocation({
 
     required String deviceId,
-    required double latitude,
-    required double longitude,
 
+    required double latitude,
+
+    required double longitude,
   }) async {
 
-    await database
-        .child("devices")
-        .child(deviceId)
-        .set({
+    try {
 
-      "latitude": latitude,
-      "longitude": longitude,
-      "timestamp":
-          DateTime.now()
-              .millisecondsSinceEpoch,
-    });
+      // ===============================
+      // SAVE LOCATION
+      // ===============================
+      await database
+          .child("devices")
+          .child(deviceId)
+          .set({
+
+        "latitude":
+            latitude,
+
+        "longitude":
+            longitude,
+
+        "timestamp":
+            DateTime.now()
+                .millisecondsSinceEpoch,
+      });
+
+      // ===============================
+      // SAVE HISTORY
+      // ===============================
+      await database
+          .child("location_history")
+          .child(deviceId)
+          .push()
+          .set({
+
+        "latitude":
+            latitude,
+
+        "longitude":
+            longitude,
+
+        "timestamp":
+            DateTime.now()
+                .millisecondsSinceEpoch,
+      });
+
+      // ===============================
+      // CHECK GEOFENCES
+      // ===============================
+      await GeofenceService
+          .checkGeofences(
+
+        deviceId: deviceId,
+
+        latitude: latitude,
+
+        longitude: longitude,
+      );
+
+      print(
+        "LOCATION UPDATED",
+      );
+
+    } catch (e) {
+
+      print(
+        "TRACKING ERROR: $e",
+      );
+    }
   }
 
-  // RECEIVE LIVE LOCATION
+  // =====================================
+  // LIVE LOCATION
+  // =====================================
   static Stream<DatabaseEvent>
-      getLiveLocation(String deviceId) {
+      getLiveLocation(
+    String deviceId,
+  ) {
 
     return database
         .child("devices")
+        .child(deviceId)
+        .onValue;
+  }
+
+  // =====================================
+  // LOCATION HISTORY
+  // =====================================
+  static Stream<DatabaseEvent>
+      getLocationHistory(
+    String deviceId,
+  ) {
+
+    return database
+        .child("location_history")
         .child(deviceId)
         .onValue;
   }

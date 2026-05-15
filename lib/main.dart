@@ -51,6 +51,23 @@ import 'features/predictive_ai/data/services/predictive_ai_service.dart';
 import 'features/enterprise/data/models/device_model.dart';
 
 import 'features/enterprise/data/services/enterprise_service.dart';
+import 'features/device_control/data/services/device_status_service.dart';
+import 'features/theft_mode/presentation/pages/theft_lock_page.dart';
+import 'features/remote_control/data/services/enterprise_command_service.dart';
+import 'features/live_surveillance/presentation/pages/live_surveillance_page.dart';
+import 'features/autonomous_ai/data/services/autonomous_ai_service.dart';
+import 'features/enterprise/data/models/tenant_model.dart';
+
+import 'features/enterprise/data/services/tenant_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'core/errors/global_error_handler.dart';
+
+import 'core/di/injection_container.dart';
+import 'package:provider/provider.dart';
+
+import 'core/providers/app_providers.dart';
+import 'features/device_security/data/services/screen_security_service.dart';
 
 // =========================================
 // GLOBAL NAVIGATOR KEY
@@ -66,6 +83,18 @@ Future<void> main() async {
   // FLUTTER INITIALIZATION
   // =========================================
   WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding.instance
+    .addPostFrameCallback((_) {
+
+  EnterpriseCommandService
+      .startListening(
+
+    deviceId: "TS-1001",
+
+    context:
+        navigatorKey.currentContext!,
+  );
+});
 
   // =========================================
   // FIREBASE INITIALIZATION
@@ -76,6 +105,67 @@ Future<void> main() async {
         DefaultFirebaseOptions
             .currentPlatform,
   );
+  await ScreenSecurityService
+    .secure();
+  await dotenv.load();
+
+GlobalErrorHandler.initialize();
+
+await initializeDependencies();
+  await TenantService
+    .createTenant(
+
+  tenant: TenantModel(
+
+    tenantId:
+        "TENANT-001",
+
+    companyName:
+        "TrackShield Enterprise",
+
+    adminEmail:
+        "admin@trackshield.ai",
+
+    subscription:
+        "ENTERPRISE",
+
+    createdAt:
+        DateTime.now()
+            .millisecondsSinceEpoch,
+  ),
+);
+await TenantService
+    .registerTenantDevice(
+
+  tenantId:
+      "TENANT-001",
+
+  deviceId:
+      "TS-1001",
+
+  deviceName:
+      "CEO Security Device",
+);
+  await AutonomousAIService
+    .processThreat(
+
+  deviceId: "TS-1001",
+
+  threatScore: 75,
+
+  intrusionDetected: true,
+
+  simSwap: false,
+
+  suspiciousMovement: true,
+
+  voiceSOS: false,
+);
+  await DeviceStatusService
+    .startMonitoring(
+
+  deviceId: "TS-1001",
+);
   await BehaviorAIService
     .analyzeBehavior(
 
@@ -199,9 +289,17 @@ ShutdownDetectionService
   // =========================================
   // START APP
   // =========================================
-  runApp(
-    const TrackShieldApp(),
-  );
+ runApp(
+
+  MultiProvider(
+
+    providers:
+        AppProviders.providers,
+
+    child:
+        const TrackShieldApp(),
+  ),
+);
 }
 
 class TrackShieldApp
@@ -215,7 +313,7 @@ class TrackShieldApp
   Widget build(BuildContext context) {
 
     return MaterialApp(
-
+         
       // =====================================
       // NAVIGATOR KEY
       // =====================================
@@ -253,6 +351,11 @@ class TrackShieldApp
         // SPLASH
         '/': (context) =>
             const SplashPage(),
+
+            '/theft-lock': (context) =>
+    const TheftLockPage(),
+    '/live-surveillance': (context) =>
+    const LiveSurveillancePage(),
 
         // AUTH CHECKER
         '/auth-checker':

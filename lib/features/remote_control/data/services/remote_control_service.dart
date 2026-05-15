@@ -6,6 +6,14 @@ import '../../../../main.dart';
 
 import '../../../theft_mode/presentation/pages/theft_lock_page.dart';
 
+import 'command_security_service.dart';
+
+import 'remote_siren_service.dart';
+
+import 'remote_wipe_service.dart';
+
+import 'remote_audit_service.dart';
+
 class RemoteControlService {
 
   static final FirebaseDatabase
@@ -16,40 +24,179 @@ class RemoteControlService {
   // START LISTENING
   // =====================================
   static void startListening({
+
     required String deviceId,
   }) {
 
     final commandRef =
         _database.ref(
+
       "remote_commands/$deviceId",
     );
 
-    commandRef.onValue.listen((event) {
+    commandRef.onValue.listen((event)
+    async {
 
-      final data =
-          event.snapshot.value;
+      try {
 
-      if (data == null) return;
+        final data =
+            event.snapshot.value;
 
-      final Map command =
-          data as Map;
+        if (data == null) {
+          return;
+        }
 
-      // =================================
-      // LOCK DEVICE
-      // =================================
-      if (command["action"] ==
-          "LOCK_DEVICE") {
+        final Map<dynamic, dynamic>
+            command =
 
-        lockDevice();
-      }
+            Map<dynamic, dynamic>.from(
+          data as Map,
+        );
 
-      // =================================
-      // TRIGGER ALARM
-      // =================================
-      if (command["action"] ==
-          "TRIGGER_ALARM") {
+        final String action =
+            command["action"] ?? "";
 
-        triggerAlarm();
+        final String signature =
+            command["signature"] ?? "";
+
+        // ===============================
+        // VERIFY SIGNATURE
+        // ===============================
+        final bool valid =
+
+            CommandSecurityService
+                .verify(
+
+          command: action,
+
+          deviceId: deviceId,
+
+          signature: signature,
+        );
+
+        if (!valid) {
+
+          print(
+            "INVALID COMMAND SIGNATURE",
+          );
+
+          await RemoteAuditService
+              .log(
+
+            deviceId: deviceId,
+
+            action: action,
+
+            status:
+                "INVALID_SIGNATURE",
+          );
+
+          return;
+        }
+
+        // ===============================
+        // LOCK DEVICE
+        // ===============================
+        if (action ==
+            "LOCK_DEVICE") {
+
+          await lockDevice();
+
+          await RemoteAuditService
+              .log(
+
+            deviceId: deviceId,
+
+            action: action,
+
+            status: "EXECUTED",
+          );
+        }
+
+        // ===============================
+        // TRIGGER ALARM
+        // ===============================
+        if (action ==
+            "TRIGGER_ALARM") {
+
+          await triggerAlarm();
+
+          await RemoteAuditService
+              .log(
+
+            deviceId: deviceId,
+
+            action: action,
+
+            status: "EXECUTED",
+          );
+        }
+
+        // ===============================
+        // START SIREN
+        // ===============================
+        if (action ==
+            "START_SIREN") {
+
+          await RemoteSirenService
+              .startSiren();
+
+          await RemoteAuditService
+              .log(
+
+            deviceId: deviceId,
+
+            action: action,
+
+            status: "EXECUTED",
+          );
+        }
+
+        // ===============================
+        // STOP SIREN
+        // ===============================
+        if (action ==
+            "STOP_SIREN") {
+
+          await RemoteSirenService
+              .stopSiren();
+
+          await RemoteAuditService
+              .log(
+
+            deviceId: deviceId,
+
+            action: action,
+
+            status: "EXECUTED",
+          );
+        }
+
+        // ===============================
+        // REMOTE WIPE
+        // ===============================
+        if (action ==
+            "REMOTE_WIPE") {
+
+          await RemoteWipeService
+              .wipe();
+
+          await RemoteAuditService
+              .log(
+
+            deviceId: deviceId,
+
+            action: action,
+
+            status: "EXECUTED",
+          );
+        }
+
+      } catch (e) {
+
+        print(
+          "REMOTE CONTROL ERROR: $e",
+        );
       }
     });
   }
@@ -60,31 +207,52 @@ class RemoteControlService {
   static Future<void>
       lockDevice() async {
 
-    print(
-      "REMOTE LOCK ACTIVATED",
-    );
+    try {
 
-    navigatorKey.currentState
-        ?.pushAndRemoveUntil(
+      print(
+        "REMOTE LOCK ACTIVATED",
+      );
 
-      MaterialPageRoute(
+      navigatorKey.currentState
+          ?.pushAndRemoveUntil(
 
-        builder: (_) =>
-            const TheftLockPage(),
-      ),
+        MaterialPageRoute(
 
-      (route) => false,
-    );
+          builder: (_) =>
+              const TheftLockPage(),
+        ),
+
+        (route) => false,
+      );
+
+    } catch (e) {
+
+      print(
+        "LOCK DEVICE ERROR: $e",
+      );
+    }
   }
 
   // =====================================
-  // ALARM
+  // TRIGGER ALARM
   // =====================================
   static Future<void>
       triggerAlarm() async {
 
-    print(
-      "REMOTE ALARM ACTIVATED",
-    );
+    try {
+
+      print(
+        "REMOTE ALARM ACTIVATED",
+      );
+
+      await RemoteSirenService
+          .startSiren();
+
+    } catch (e) {
+
+      print(
+        "ALARM ERROR: $e",
+      );
+    }
   }
 }

@@ -545,7 +545,24 @@ class DashboardPage extends StatelessWidget {
                 );
               },
             ),
+ElevatedButton.icon(
 
+  onPressed: () {
+
+    Navigator.pushNamed(
+      context,
+      '/live-surveillance',
+    );
+  },
+
+  icon: const Icon(
+    Icons.videocam,
+  ),
+
+  label: const Text(
+    "Live Surveillance",
+  ),
+),
             dashboardCard(
 
               context,
