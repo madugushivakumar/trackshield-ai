@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "551540707255",
+    "project_id": "trackshieldai",
+    "storage_bucket": "trackshieldai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551540707255:android:3c7ce5632becb49be12232",
+        "android_client_info": {
+          "package_name": "com.example.mobile_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAm3tTMlAUMLf19bP7BjSu5FAiqazOMr3E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
