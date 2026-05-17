@@ -26,10 +26,70 @@ const PORT =
 // =====================================
 // START SERVER
 // =====================================
-app.listen(PORT, () => {
+const server =
+  app.listen(
 
-  console.log(
+    PORT,
 
-    `Server running on port ${PORT}`,
+    () => {
+
+      console.log(
+
+        `Server running on port ${PORT}`,
+      );
+    },
   );
-});
+
+// =====================================
+// HANDLE SERVER ERRORS
+// =====================================
+server.on(
+
+  "error",
+
+  (error) => {
+
+    console.log(
+
+      "Server Error:",
+
+      error.message,
+    );
+  },
+);
+
+// =====================================
+// HANDLE UNCAUGHT ERRORS
+// =====================================
+process.on(
+
+  "uncaughtException",
+
+  (error) => {
+
+    console.log(
+
+      "Uncaught Exception:",
+
+      error.message,
+    );
+  },
+);
+
+// =====================================
+// HANDLE UNHANDLED PROMISES
+// =====================================
+process.on(
+
+  "unhandledRejection",
+
+  (error) => {
+
+    console.log(
+
+      "Unhandled Rejection:",
+
+      error.message,
+    );
+  },
+);

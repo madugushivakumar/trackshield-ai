@@ -1,26 +1,18 @@
 import {
-
   createContext,
-
   useEffect,
-
   useState,
-
 } from "react";
 
 import {
-
   getProfile,
-
-  logoutUser,
-
 } from "../services/authService";
 
 // =====================================
 // CONTEXT
 // =====================================
 export const AuthContext =
-  createContext();
+  createContext(null);
 
 // =====================================
 // PROVIDER
@@ -44,10 +36,12 @@ export const AuthProvider =
 
           const token =
             localStorage.getItem(
-
               "trackshield_token",
             );
 
+          // =============================
+          // NO TOKEN
+          // =============================
           if (!token) {
 
             setLoading(false);
@@ -55,27 +49,51 @@ export const AuthProvider =
             return;
           }
 
+          // =============================
+          // GET PROFILE
+          // =============================
           const response =
             await getProfile();
 
-          setUser(
-            response.user,
-          );
+          if (
+            response &&
+            response.user
+          ) {
+
+            setUser(
+              response.user,
+            );
+          }
 
         } catch (error) {
 
           console.log(
+            "Auth Load Error:",
             error,
           );
 
+          // =============================
+          // CLEAR INVALID TOKEN
+          // =============================
           localStorage.removeItem(
             "trackshield_token",
           );
-        }
 
-        setLoading(false);
+          localStorage.removeItem(
+            "trackshield_user",
+          );
+
+          setUser(null);
+
+        } finally {
+
+          setLoading(false);
+        }
       };
 
+    // =================================
+    // INITIAL LOAD
+    // =================================
     useEffect(() => {
 
       loadUser();
@@ -87,23 +105,17 @@ export const AuthProvider =
     // =================================
     const login =
       (
-
         token,
-
         userData,
       ) => {
 
         localStorage.setItem(
-
           "trackshield_token",
-
           token,
         );
 
         localStorage.setItem(
-
           "trackshield_user",
-
           JSON.stringify(
             userData,
           ),
@@ -118,24 +130,31 @@ export const AuthProvider =
     const logout =
       () => {
 
-        logoutUser();
+        localStorage.removeItem(
+          "trackshield_token",
+        );
+
+        localStorage.removeItem(
+          "trackshield_user",
+        );
 
         setUser(null);
+
+        window.location.href = "/";
       };
 
     return (
 
       <AuthContext.Provider
-
         value={{
 
           user,
 
+          loading,
+
           login,
 
           logout,
-
-          loading,
         }}
       >
 

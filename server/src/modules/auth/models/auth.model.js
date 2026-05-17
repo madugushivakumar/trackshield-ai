@@ -1,114 +1,127 @@
 const mongoose =
-    require("mongoose");
+  require("mongoose");
 
 // =====================================
 // AUTH USER SCHEMA
 // =====================================
 const authSchema =
-    new mongoose.Schema({
+  new mongoose.Schema(
 
-  name: {
+    {
+      name: {
 
-    type: String,
+        type: String,
 
-    required: true,
+        required: true,
 
-    trim: true,
-  },
+        trim: true,
+      },
 
-  email: {
+      email: {
 
-    type: String,
+        type: String,
 
-    required: true,
+        required: true,
 
-    unique: true,
+        unique: true,
 
-    lowercase: true,
+        lowercase: true,
 
-    trim: true,
-  },
+        trim: true,
+      },
 
-  password: {
+      password: {
 
-    type: String,
+        type: String,
 
-    required: true,
-  },
+        required: true,
+      },
 
-  role: {
+      role: {
 
-    type: String,
+        type: String,
 
-    enum: [
+        enum: [
 
-      "USER",
+          "USER",
 
-      "ADMIN",
+          "ADMIN",
 
-      "SECURITY",
-    ],
+          "SECURITY",
+        ],
 
-    default: "USER",
-  },
+        default: "USER",
+      },
 
-  phone: {
+      phone: {
 
-    type: String,
+        type: String,
 
-    default: "",
-  },
+        default: "",
+      },
 
-  isVerified: {
+      isVerified: {
 
-    type: Boolean,
+        type: Boolean,
 
-    default: false,
-  },
+        default: false,
+      },
 
-  isBlocked: {
+      isBlocked: {
 
-    type: Boolean,
+        type: Boolean,
 
-    default: false,
-  },
+        default: false,
+      },
 
-  loginAttempts: {
+      loginAttempts: {
 
-    type: Number,
+        type: Number,
 
-    default: 0,
-  },
+        default: 0,
+      },
 
-  lastLogin: {
+      lastLogin: {
 
-    type: Date,
+        type: Date,
 
-    default: null,
-  },
+        default: null,
+      },
 
-  refreshToken: {
+      refreshToken: {
 
-    type: String,
+        type: String,
 
-    default: "",
-  },
+        default: "",
+      },
+    },
 
-  createdAt: {
+    {
+      timestamps: true,
+    },
+  );
 
-    type: Date,
+// =====================================
+// REMOVE PASSWORD FROM RESPONSE
+// =====================================
+authSchema.methods.toJSON =
+  function () {
 
-    default: Date.now,
-  },
-});
+    const user =
+      this.toObject();
+
+    delete user.password;
+
+    return user;
+  };
 
 // =====================================
 // EXPORT MODEL
 // =====================================
 module.exports =
-    mongoose.model(
+  mongoose.model(
 
-      "AuthUser",
+    "AuthUser",
 
-      authSchema,
-    );
+    authSchema,
+  );

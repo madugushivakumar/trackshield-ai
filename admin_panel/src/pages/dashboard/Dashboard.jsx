@@ -1,5 +1,3 @@
-import MainLayout from "../../layouts/MainLayout";
-
 import StatusCard from "../../components/dashboard/StatusCard";
 
 import AnalyticsChart from "../../components/charts/AnalyticsChart";
@@ -23,9 +21,11 @@ const Dashboard = () => {
 
   return (
 
-    <MainLayout>
+    <div>
 
+      {/* ================================= */}
       {/* PAGE HEADER */}
+      {/* ================================= */}
       <div
         style={{
           marginBottom: "30px",
@@ -37,11 +37,11 @@ const Dashboard = () => {
 
             color: "white",
 
-            fontSize: "34px",
-
-            marginBottom: "10px",
+            fontSize: "36px",
 
             fontWeight: "bold",
+
+            marginBottom: "10px",
           }}
         >
 
@@ -51,6 +51,7 @@ const Dashboard = () => {
 
         <p
           style={{
+
             color: "#94a3b8",
 
             fontSize: "16px",
@@ -63,7 +64,9 @@ const Dashboard = () => {
 
       </div>
 
+      {/* ================================= */}
       {/* STATUS CARDS */}
+      {/* ================================= */}
       <div
         style={{
 
@@ -78,6 +81,7 @@ const Dashboard = () => {
         }}
       >
 
+        {/* USERS */}
         <StatusCard
           title="Users"
           value="120"
@@ -86,6 +90,7 @@ const Dashboard = () => {
           icon={<FaUsers />}
         />
 
+        {/* DEVICES */}
         <StatusCard
           title="Devices"
           value="80"
@@ -94,6 +99,7 @@ const Dashboard = () => {
           icon={<FaMobileAlt />}
         />
 
+        {/* THREATS */}
         <StatusCard
           title="Threats"
           value="12"
@@ -104,6 +110,7 @@ const Dashboard = () => {
           }
         />
 
+        {/* SOS */}
         <StatusCard
           title="SOS Alerts"
           value="5"
@@ -114,10 +121,20 @@ const Dashboard = () => {
 
       </div>
 
-      {/* ANALYTICS */}
-      <AnalyticsChart />
+      {/* ================================= */}
+      {/* ANALYTICS CHART */}
+      {/* ================================= */}
+      <div
+        style={{
+          marginTop: "20px",
+        }}
+      >
 
-    </MainLayout>
+        <AnalyticsChart />
+
+      </div>
+
+    </div>
   );
 };
 

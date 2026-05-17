@@ -1,31 +1,18 @@
 import {
-
   Link,
-
   useLocation,
-
 } from "react-router-dom";
 
 import {
-
   FaShieldAlt,
-
   FaMapMarkedAlt,
-
   FaMobileAlt,
-
   FaBell,
-
   FaCog,
-
   FaExclamationTriangle,
-
   FaChartLine,
-
   FaUsers,
-
   FaSignOutAlt,
-
 } from "react-icons/fa";
 
 import useAuth from "../../hooks/useAuth";
@@ -39,9 +26,7 @@ const Sidebar = () => {
     useLocation();
 
   const {
-
     logout,
-
   } = useAuth();
 
   // ===================================
@@ -50,86 +35,58 @@ const Sidebar = () => {
   const menus = [
 
     {
-
       title: "Dashboard",
-
       path: "/dashboard",
-
       icon: <FaShieldAlt />,
     },
 
     {
-
       title: "Users",
-
       path: "/users",
-
       icon: <FaUsers />,
     },
 
     {
-
       title: "Devices",
-
       path: "/devices",
-
       icon: <FaMobileAlt />,
     },
 
     {
-
       title: "Tracking",
-
       path: "/tracking",
-
       icon: <FaMapMarkedAlt />,
     },
 
     {
-
       title: "SOS Alerts",
-
       path: "/sos",
-
-      // FIXED HERE
       icon:
         <FaExclamationTriangle />,
     },
 
     {
-
       title: "Alerts",
-
       path: "/alerts",
-
       icon: <FaBell />,
     },
 
     {
-
       title: "Analytics",
-
       path: "/analytics",
-
       icon: <FaChartLine />,
     },
 
     {
-
       title: "Security",
-
       path: "/security",
-
       icon:
         <FaExclamationTriangle />,
     },
 
     {
-
       title: "Settings",
-
       path: "/settings",
-
       icon: <FaCog />,
     },
   ];
@@ -139,18 +96,13 @@ const Sidebar = () => {
     <div
       style={{
 
-        width: "270px",
+        width: "100%",
 
-        minHeight: "100vh",
+        height: "100vh",
 
         background: "#020817",
 
         color: "white",
-
-        padding: "20px",
-
-        borderRight:
-          "1px solid #1e293b",
 
         display: "flex",
 
@@ -158,14 +110,30 @@ const Sidebar = () => {
 
         justifyContent:
           "space-between",
+
+        overflow: "hidden",
       }}
     >
 
-      <div>
+      {/* ================================= */}
+      {/* TOP */}
+      {/* ================================= */}
+      <div
+        style={{
 
-        {/* ========================== */}
+          flex: 1,
+
+          overflowY: "auto",
+
+          padding: "24px",
+
+          scrollbarWidth: "none",
+        }}
+      >
+
+        {/* ================================= */}
         {/* LOGO */}
-        {/* ========================== */}
+        {/* ================================= */}
         <div
           style={{
             marginBottom: "40px",
@@ -175,11 +143,15 @@ const Sidebar = () => {
           <h1
             style={{
 
-              fontSize: "30px",
+              fontSize: "36px",
 
               fontWeight: "bold",
 
               color: "#38bdf8",
+
+              lineHeight: "1.2",
+
+              marginBottom: "10px",
             }}
           >
 
@@ -192,8 +164,6 @@ const Sidebar = () => {
 
               color: "#94a3b8",
 
-              marginTop: "8px",
-
               fontSize: "14px",
             }}
           >
@@ -204,93 +174,120 @@ const Sidebar = () => {
 
         </div>
 
-        {/* ========================== */}
+        {/* ================================= */}
         {/* MENUS */}
-        {/* ========================== */}
+        {/* ================================= */}
         <div>
 
           {
 
-            menus.map((menu) => (
+            menus.map((menu) => {
 
-              <Link
-                key={menu.path}
-                to={menu.path}
+              const isActive =
+                location.pathname ===
+                menu.path;
 
-                style={{
+              return (
 
-                  display: "flex",
+                <Link
+                  key={menu.path}
+                  to={menu.path}
 
-                  alignItems: "center",
-
-                  gap: "14px",
-
-                  padding: "14px",
-
-                  marginBottom: "12px",
-
-                  borderRadius: "14px",
-
-                  textDecoration: "none",
-
-                  color: "white",
-
-                  background:
-
-                    location.pathname ===
-                    menu.path
-
-                      ? "#1e293b"
-
-                      : "transparent",
-
-                  border:
-
-                    location.pathname ===
-                    menu.path
-
-                      ? "1px solid #334155"
-
-                      : "1px solid transparent",
-
-                  transition: "0.3s",
-                }}
-              >
-
-                <span
                   style={{
-                    fontSize: "20px",
+
+                    display: "flex",
+
+                    alignItems: "center",
+
+                    gap: "14px",
+
+                    padding:
+                      "16px 18px",
+
+                    marginBottom: "14px",
+
+                    borderRadius: "18px",
+
+                    textDecoration: "none",
+
+                    color: "white",
+
+                    background:
+                      isActive
+                        ? "#1e293b"
+                        : "transparent",
+
+                    border:
+                      isActive
+                        ? "1px solid #334155"
+                        : "1px solid transparent",
+
+                    transition:
+                      "all 0.3s ease",
+
+                    fontWeight:
+                      isActive
+                        ? "600"
+                        : "500",
                   }}
                 >
 
-                  {menu.icon}
+                  {/* ICON */}
+                  <span
+                    style={{
 
-                </span>
+                      fontSize: "20px",
 
-                <span
-                  style={{
-                    fontSize: "16px",
-                  }}
-                >
+                      display: "flex",
 
-                  {menu.title}
+                      alignItems:
+                        "center",
 
-                </span>
+                      justifyContent:
+                        "center",
 
-              </Link>
-            ))
+                      minWidth: "24px",
+                    }}
+                  >
+
+                    {menu.icon}
+
+                  </span>
+
+                  {/* TITLE */}
+                  <span
+                    style={{
+
+                      fontSize: "16px",
+
+                      whiteSpace:
+                        "nowrap",
+                    }}
+                  >
+
+                    {menu.title}
+
+                  </span>
+
+                </Link>
+              );
+            })
           }
 
         </div>
 
       </div>
 
-      {/* ========================== */}
+      {/* ================================= */}
       {/* FOOTER */}
-      {/* ========================== */}
-      <div>
+      {/* ================================= */}
+      <div
+        style={{
+          padding: "24px",
+        }}
+      >
 
-        {/* SECURITY STATUS */}
+        {/* STATUS */}
         <div
           style={{
 
@@ -298,7 +295,7 @@ const Sidebar = () => {
 
             background: "#111827",
 
-            borderRadius: "16px",
+            borderRadius: "18px",
 
             border:
               "1px solid #334155",
@@ -315,15 +312,24 @@ const Sidebar = () => {
               alignItems: "center",
 
               gap: "10px",
+
+              marginBottom: "10px",
             }}
           >
 
             <FaShieldAlt
               color="#22c55e"
+              size={18}
             />
 
-            <span>
+            <span
+              style={{
+                fontWeight: "600",
+              }}
+            >
+
               AI Protection Active
+
             </span>
 
           </div>
@@ -331,11 +337,11 @@ const Sidebar = () => {
           <p
             style={{
 
-              marginTop: "10px",
-
               color: "#94a3b8",
 
               fontSize: "14px",
+
+              lineHeight: "1.5",
             }}
           >
 
@@ -354,9 +360,9 @@ const Sidebar = () => {
 
             width: "100%",
 
-            padding: "14px",
+            padding: "15px",
 
-            borderRadius: "14px",
+            borderRadius: "18px",
 
             border: "none",
 
@@ -376,6 +382,11 @@ const Sidebar = () => {
             gap: "10px",
 
             cursor: "pointer",
+
+            fontSize: "16px",
+
+            transition:
+              "all 0.3s ease",
           }}
         >
 

@@ -2,23 +2,28 @@ import React from "react";
 
 import ReactDOM from "react-dom/client";
 
+import {
+  BrowserRouter,
+} from "react-router-dom";
+
 import App from "./App";
 
+import "./index.css";
 
 // =====================================
-// CONTEXT PROVIDERS
+// CONTEXT
 // =====================================
 import {
-
   AuthProvider,
-
 } from "./context/AuthContext";
 
 import {
-
   SocketProvider,
-
 } from "./context/SocketContext";
+
+import {
+  ThemeProvider,
+} from "./context/ThemeContext";
 
 // =====================================
 // ROOT
@@ -31,17 +36,23 @@ ReactDOM.createRoot(
 
   <React.StrictMode>
 
-    {/* AUTH */}
-    <AuthProvider>
+    <BrowserRouter>
 
-      {/* SOCKET */}
-      <SocketProvider>
+      <ThemeProvider>
 
-        <App />
+        <AuthProvider>
 
-      </SocketProvider>
+          <SocketProvider>
 
-    </AuthProvider>
+            <App />
+
+          </SocketProvider>
+
+        </AuthProvider>
+
+      </ThemeProvider>
+
+    </BrowserRouter>
 
   </React.StrictMode>,
 );

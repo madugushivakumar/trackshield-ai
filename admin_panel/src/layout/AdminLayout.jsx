@@ -1,8 +1,8 @@
 import Sidebar
-from "../components/Sidebar";
+from "../components/dashboard/Sidebar";
 
 import Topbar
-from "../components/Topbar";
+from "../components/dashboard/Topbar";
 
 const AdminLayout = ({
   children,

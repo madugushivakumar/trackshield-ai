@@ -1,59 +1,53 @@
 const express =
-    require("express");
+  require("express");
 
 const router =
-    express.Router();
+  express.Router();
 
+// =====================================
+// MIDDLEWARE
+// =====================================
 const authMiddleware =
-    require(
+  require(
+    "../../../middleware/authMiddleware",
+  );
 
-      "../../../middleware/authMiddleware",
-    );
-
+// =====================================
+// CONTROLLERS
+// =====================================
 const {
-
   register,
-
   login,
-
   profile,
-
 } = require(
-
   "../controllers/auth.controller",
 );
 
 // =====================================
-// REGISTER
+// AUTH ROUTES
 // =====================================
+
+// REGISTER
 router.post(
-
   "/register",
-
   register,
 );
 
-// =====================================
 // LOGIN
-// =====================================
 router.post(
-
   "/login",
-
   login,
 );
 
-// =====================================
 // PROFILE
-// =====================================
 router.get(
-
   "/profile",
-
   authMiddleware,
-
   profile,
 );
 
+// =====================================
+// EXPORT
+// =====================================
 module.exports =
-    router;
+  router;

@@ -1,37 +1,86 @@
-import API from "./api";
+import axios from "axios";
 
 // =====================================
-// LOGIN USER
+// API BASE URL
 // =====================================
-export const loginUser =
-  async (data) => {
+const API =
+  "http://localhost:5000/api/auth";
 
-    const response =
-      await API.post(
+// =====================================
+// AXIOS INSTANCE
+// =====================================
+const authAPI =
+  axios.create({
 
-        "/auth/login",
+    baseURL: API,
 
-        data,
-      );
+    headers: {
 
-    return response.data;
-  };
+      "Content-Type":
+        "application/json",
+    },
+  });
 
 // =====================================
 // REGISTER USER
 // =====================================
 export const registerUser =
-  async (data) => {
+  async (formData) => {
 
-    const response =
-      await API.post(
+    try {
 
-        "/auth/register",
+      const response =
+        await authAPI.post(
 
-        data,
+          "/register",
+
+          formData,
+        );
+
+      return response.data;
+
+    } catch (error) {
+
+      console.log(
+
+        "Register Service Error:",
+
+        error,
       );
 
-    return response.data;
+      throw error;
+    }
+  };
+
+// =====================================
+// LOGIN USER
+// =====================================
+export const loginUser =
+  async (formData) => {
+
+    try {
+
+      const response =
+        await authAPI.post(
+
+          "/login",
+
+          formData,
+        );
+
+      return response.data;
+
+    } catch (error) {
+
+      console.log(
+
+        "Login Service Error:",
+
+        error,
+      );
+
+      throw error;
+    }
   };
 
 // =====================================
@@ -40,13 +89,41 @@ export const registerUser =
 export const getProfile =
   async () => {
 
-    const response =
-      await API.get(
+    try {
 
-        "/auth/profile",
+      const token =
+        localStorage.getItem(
+          "trackshield_token",
+        );
+
+      const response =
+        await authAPI.get(
+
+          "/profile",
+
+          {
+
+            headers: {
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+          },
+        );
+
+      return response.data;
+
+    } catch (error) {
+
+      console.log(
+
+        "Profile Service Error:",
+
+        error,
       );
 
-    return response.data;
+      throw error;
+    }
   };
 
 // =====================================
@@ -62,4 +139,43 @@ export const logoutUser =
     localStorage.removeItem(
       "trackshield_user",
     );
+
+    window.location.href = "/";
+  };
+
+// =====================================
+// SAVE AUTH DATA
+// =====================================
+export const saveAuthData =
+  (token, user) => {
+
+    localStorage.setItem(
+
+      "trackshield_token",
+
+      token,
+    );
+
+    localStorage.setItem(
+
+      "trackshield_user",
+
+      JSON.stringify(user),
+    );
+  };
+
+// =====================================
+// GET STORED USER
+// =====================================
+export const getStoredUser =
+  () => {
+
+    const user =
+      localStorage.getItem(
+        "trackshield_user",
+      );
+
+    return user
+      ? JSON.parse(user)
+      : null;
   };

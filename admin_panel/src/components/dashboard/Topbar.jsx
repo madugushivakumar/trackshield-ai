@@ -12,9 +12,21 @@ import {
 
   FaMicrochip,
 
+  FaMoon,
+
+  FaSun,
+
+  FaSearch,
+
 } from "react-icons/fa";
 
 import useAuth from "../../hooks/useAuth";
+
+import {
+
+  useTheme,
+
+} from "../../context/ThemeContext";
 
 // =====================================
 // TOPBAR
@@ -22,252 +34,272 @@ import useAuth from "../../hooks/useAuth";
 const Topbar = () => {
 
   const {
-
     user,
-
   } = useAuth();
+
+  const {
+    theme,
+    toggleTheme,
+  } = useTheme();
 
   return (
 
     <div
       style={{
 
-        height: "85px",
+        width: "100%",
 
-        background: "#111827",
+        background:
+          theme === "dark"
+            ? "rgba(15,23,42,0.92)"
+            : "rgba(255,255,255,0.92)",
 
         borderBottom:
-          "1px solid #1e293b",
+          theme === "dark"
+            ? "1px solid #1e293b"
+            : "1px solid #dbeafe",
 
-        display: "flex",
+        padding: "18px 24px",
 
-        justifyContent:
-          "space-between",
+        boxSizing: "border-box",
 
-        alignItems: "center",
+        position: "sticky",
 
-        padding: "0 28px",
+        top: 0,
 
-        color: "white",
+        zIndex: 999,
+
+        backdropFilter:
+          "blur(14px)",
+
+        overflow: "hidden",
+
+        transition:
+          "all 0.3s ease",
       }}
     >
 
-      {/* ============================= */}
-      {/* LEFT */}
-      {/* ============================= */}
-      <div>
-
-        <h2
-          style={{
-
-            fontSize: "28px",
-
-            fontWeight: "bold",
-          }}
-        >
-
-          Enterprise Security Dashboard
-
-        </h2>
-
-        <p
-          style={{
-
-            color: "#94a3b8",
-
-            marginTop: "6px",
-
-            fontSize: "14px",
-          }}
-        >
-
-          AI-powered realtime protection system
-
-        </p>
-
-      </div>
-
-      {/* ============================= */}
-      {/* RIGHT */}
-      {/* ============================= */}
+      {/* ================================= */}
+      {/* MAIN FLEX */}
+      {/* ================================= */}
       <div
         style={{
 
           display: "flex",
 
+          justifyContent:
+            "space-between",
+
           alignItems: "center",
 
-          gap: "18px",
+          gap: "20px",
+
+          flexWrap: "wrap",
         }}
       >
 
-        {/* SECURITY */}
+        {/* ================================= */}
+        {/* LEFT SECTION */}
+        {/* ================================= */}
         <div
           style={{
 
-            display: "flex",
+            flex: "1",
 
-            alignItems: "center",
-
-            gap: "8px",
-
-            background: "#0f172a",
-
-            padding:
-              "10px 16px",
-
-            borderRadius: "12px",
-
-            border:
-              "1px solid #1e293b",
+            minWidth: "240px",
           }}
         >
 
-          <FaShieldAlt
-            color="#22c55e"
-          />
-
-          <span>
-            Protected
-          </span>
-
-        </div>
-
-        {/* NETWORK */}
-        <div
-          style={{
-
-            display: "flex",
-
-            alignItems: "center",
-
-            gap: "8px",
-
-            background: "#0f172a",
-
-            padding:
-              "10px 16px",
-
-            borderRadius: "12px",
-
-            border:
-              "1px solid #1e293b",
-          }}
-        >
-
-          <FaWifi
-            color="#38bdf8"
-          />
-
-          <span>
-            Online
-          </span>
-
-        </div>
-
-        {/* SERVER */}
-        <div
-          style={{
-
-            display: "flex",
-
-            alignItems: "center",
-
-            gap: "8px",
-
-            background: "#0f172a",
-
-            padding:
-              "10px 16px",
-
-            borderRadius: "12px",
-
-            border:
-              "1px solid #1e293b",
-          }}
-        >
-
-          <FaServer
-            color="#f59e0b"
-          />
-
-          <span>
-            Server Active
-          </span>
-
-        </div>
-
-        {/* AI ENGINE */}
-        <div
-          style={{
-
-            display: "flex",
-
-            alignItems: "center",
-
-            gap: "8px",
-
-            background: "#0f172a",
-
-            padding:
-              "10px 16px",
-
-            borderRadius: "12px",
-
-            border:
-              "1px solid #1e293b",
-          }}
-        >
-
-          <FaMicrochip
-            color="#8b5cf6"
-          />
-
-          <span>
-            AI Running
-          </span>
-
-        </div>
-
-        {/* ALERT ICON */}
-        <div
-          style={{
-
-            position: "relative",
-
-            cursor: "pointer",
-
-            background: "#0f172a",
-
-            padding: "12px",
-
-            borderRadius: "12px",
-
-            border:
-              "1px solid #1e293b",
-          }}
-        >
-
-          <FaBell
-            size={20}
-          />
-
-          <span
+          <h2
             style={{
 
-              position: "absolute",
+              fontSize: "30px",
 
-              top: "-5px",
+              fontWeight: "700",
 
-              right: "-5px",
+              color:
+                theme === "dark"
+                  ? "white"
+                  : "#0f172a",
 
-              width: "18px",
+              margin: 0,
 
-              height: "18px",
+              lineHeight: "1.2",
+            }}
+          >
 
-              borderRadius: "50%",
+            TrackShield AI
 
-              background: "#ef4444",
+          </h2>
+
+          <p
+            style={{
+
+              color:
+                theme === "dark"
+                  ? "#94a3b8"
+                  : "#475569",
+
+              fontSize: "14px",
+
+              marginTop: "8px",
+            }}
+          >
+
+            Enterprise AI Security Command Center
+
+          </p>
+
+        </div>
+
+        {/* ================================= */}
+        {/* RIGHT SECTION */}
+        {/* ================================= */}
+        <div
+          style={{
+
+            display: "flex",
+
+            alignItems: "center",
+
+            gap: "14px",
+
+            flexWrap: "wrap",
+
+            justifyContent:
+              "flex-end",
+          }}
+        >
+
+          {/* SEARCH */}
+          <div
+            style={{
+
+              position: "relative",
+
+              minWidth: "220px",
+            }}
+          >
+
+            <FaSearch
+              style={{
+
+                position: "absolute",
+
+                top: "15px",
+
+                left: "14px",
+
+                color:
+                  theme === "dark"
+                    ? "#94a3b8"
+                    : "#64748b",
+              }}
+            />
+
+            <input
+              type="text"
+              placeholder="Search..."
+              style={{
+
+                width: "100%",
+
+                padding:
+                  "12px 14px 12px 42px",
+
+                borderRadius: "14px",
+
+                border:
+                  theme === "dark"
+                    ? "1px solid #1e293b"
+                    : "1px solid #cbd5e1",
+
+                background:
+                  theme === "dark"
+                    ? "#0f172a"
+                    : "#ffffff",
+
+                color:
+                  theme === "dark"
+                    ? "white"
+                    : "#0f172a",
+
+                outline: "none",
+
+                fontSize: "14px",
+              }}
+            />
+
+          </div>
+
+          {/* STATUS ITEMS */}
+          <StatusItem
+            icon={
+              <FaShieldAlt
+                color="#22c55e"
+              />
+            }
+            text="Protected"
+            theme={theme}
+          />
+
+          <StatusItem
+            icon={
+              <FaWifi
+                color="#38bdf8"
+              />
+            }
+            text="Online"
+            theme={theme}
+          />
+
+          <StatusItem
+            icon={
+              <FaServer
+                color="#f59e0b"
+              />
+            }
+            text="Servers"
+            theme={theme}
+          />
+
+          <StatusItem
+            icon={
+              <FaMicrochip
+                color="#8b5cf6"
+              />
+            }
+            text="AI Active"
+            theme={theme}
+          />
+
+          {/* THEME TOGGLE */}
+          <button
+            onClick={toggleTheme}
+            style={{
+
+              width: "52px",
+
+              height: "52px",
+
+              borderRadius: "16px",
+
+              border:
+                theme === "dark"
+                  ? "1px solid #1e293b"
+                  : "1px solid #dbeafe",
+
+              background:
+                theme === "dark"
+                  ? "#0f172a"
+                  : "#ffffff",
+
+              color:
+                theme === "dark"
+                  ? "#facc15"
+                  : "#0f172a",
+
+              cursor: "pointer",
 
               display: "flex",
 
@@ -277,73 +309,201 @@ const Topbar = () => {
               alignItems:
                 "center",
 
-              fontSize: "10px",
+              transition:
+                "all 0.3s ease",
 
-              fontWeight: "bold",
+              boxShadow:
+                "0 5px 18px rgba(0,0,0,0.12)",
             }}
           >
 
-            3
+            {
 
-          </span>
+              theme === "dark"
+                ? <FaSun size={18} />
+                : <FaMoon size={18} />
+            }
 
-        </div>
+          </button>
 
-        {/* USER */}
-        <div
-          style={{
+          {/* NOTIFICATIONS */}
+          <div
+            style={{
 
-            display: "flex",
+              position: "relative",
 
-            alignItems: "center",
+              width: "52px",
 
-            gap: "12px",
+              height: "52px",
 
-            background: "#0f172a",
+              background:
+                theme === "dark"
+                  ? "#0f172a"
+                  : "#ffffff",
 
-            padding:
-              "10px 16px",
+              border:
+                theme === "dark"
+                  ? "1px solid #1e293b"
+                  : "1px solid #dbeafe",
 
-            borderRadius: "14px",
+              borderRadius: "16px",
 
-            border:
-              "1px solid #1e293b",
-          }}
-        >
+              display: "flex",
 
-          <FaUserCircle
-            size={34}
-          />
+              justifyContent:
+                "center",
 
-          <div>
+              alignItems:
+                "center",
 
-            <div
-              style={{
+              cursor: "pointer",
 
-                fontWeight:
-                  "bold",
-              }}
-            >
+              boxShadow:
+                "0 5px 18px rgba(0,0,0,0.12)",
+            }}
+          >
 
-              {
-
-                user?.name ||
-                "Admin"
-
+            <FaBell
+              size={18}
+              color={
+                theme === "dark"
+                  ? "white"
+                  : "#0f172a"
               }
+            />
 
-            </div>
-
-            <div
+            <span
               style={{
 
-                color: "#94a3b8",
+                position: "absolute",
 
-                fontSize: "13px",
+                top: "-5px",
+
+                right: "-5px",
+
+                width: "22px",
+
+                height: "22px",
+
+                borderRadius: "50%",
+
+                background: "#ef4444",
+
+                display: "flex",
+
+                justifyContent:
+                  "center",
+
+                alignItems:
+                  "center",
+
+                fontSize: "11px",
+
+                fontWeight: "bold",
+
+                color: "white",
+
+                boxShadow:
+                  "0 0 12px rgba(239,68,68,0.6)",
               }}
             >
 
-              Super Administrator
+              3
+
+            </span>
+
+          </div>
+
+          {/* USER PROFILE */}
+          <div
+            style={{
+
+              display: "flex",
+
+              alignItems: "center",
+
+              gap: "12px",
+
+              background:
+                theme === "dark"
+                  ? "#0f172a"
+                  : "#ffffff",
+
+              border:
+                theme === "dark"
+                  ? "1px solid #1e293b"
+                  : "1px solid #dbeafe",
+
+              borderRadius: "18px",
+
+              padding: "10px 16px",
+
+              minWidth: "210px",
+
+              maxWidth: "250px",
+
+              boxShadow:
+                "0 5px 18px rgba(0,0,0,0.10)",
+            }}
+          >
+
+            <FaUserCircle
+              size={36}
+              color="#3b82f6"
+            />
+
+            <div
+              style={{
+                overflow: "hidden",
+              }}
+            >
+
+              <div
+                style={{
+
+                  color:
+                    theme === "dark"
+                      ? "white"
+                      : "#0f172a",
+
+                  fontWeight: "bold",
+
+                  fontSize: "15px",
+
+                  whiteSpace:
+                    "nowrap",
+
+                  overflow: "hidden",
+
+                  textOverflow:
+                    "ellipsis",
+                }}
+              >
+
+                {
+
+                  user?.name ||
+                  "Administrator"
+
+                }
+
+              </div>
+
+              <div
+                style={{
+
+                  color:
+                    theme === "dark"
+                      ? "#94a3b8"
+                      : "#64748b",
+
+                  fontSize: "12px",
+                }}
+              >
+
+                Super Admin
+
+              </div>
 
             </div>
 
@@ -352,6 +512,72 @@ const Topbar = () => {
         </div>
 
       </div>
+
+    </div>
+  );
+};
+
+// =====================================
+// STATUS ITEM
+// =====================================
+const StatusItem = ({
+
+  icon,
+
+  text,
+
+  theme,
+
+}) => {
+
+  return (
+
+    <div
+      style={{
+
+        display: "flex",
+
+        alignItems: "center",
+
+        gap: "8px",
+
+        background:
+          theme === "dark"
+            ? "#0f172a"
+            : "#ffffff",
+
+        border:
+          theme === "dark"
+            ? "1px solid #1e293b"
+            : "1px solid #dbeafe",
+
+        padding: "10px 14px",
+
+        borderRadius: "14px",
+
+        color:
+          theme === "dark"
+            ? "white"
+            : "#0f172a",
+
+        fontSize: "14px",
+
+        fontWeight: "500",
+
+        whiteSpace: "nowrap",
+
+        boxShadow:
+          "0 4px 12px rgba(0,0,0,0.08)",
+      }}
+    >
+
+      {icon}
+
+      <span>
+
+        {text}
+
+      </span>
 
     </div>
   );

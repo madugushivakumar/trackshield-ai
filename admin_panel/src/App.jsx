@@ -1,24 +1,25 @@
 import {
-
-  BrowserRouter,
-
   Routes,
-
   Route,
-
   Navigate,
-
 } from "react-router-dom";
 
 // =====================================
 // AUTH
 // =====================================
 import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+// =====================================
+// LAYOUT
+// =====================================
+import MainLayout from "./layouts/MainLayout";
 
 // =====================================
-// CORE PAGES
+// PAGES
 // =====================================
 import Dashboard from "./pages/dashboard/Dashboard";
+
+import Users from "./pages/users/Users";
 
 import Devices from "./pages/devices/Devices";
 
@@ -26,19 +27,16 @@ import Tracking from "./pages/tracking/Tracking";
 
 import Alerts from "./pages/alerts/Alerts";
 
+import SOSAlerts from "./pages/sos/SOSAlerts";
+
 import Analytics from "./pages/analytics/Analytics";
 
 import Settings from "./pages/settings/Settings";
 
-import SOSAlerts from "./pages/sos/SOSAlerts";
+import Security from "./pages/security/Security";
 
 // =====================================
-// EXTRA PAGES
-// =====================================
-import Users from "./pages/users/Users";
-
-// =====================================
-// CONTEXT
+// AUTH HOOK
 // =====================================
 import useAuth from "./hooks/useAuth";
 
@@ -46,22 +44,17 @@ import useAuth from "./hooks/useAuth";
 // PROTECTED ROUTE
 // =====================================
 const ProtectedRoute = ({
-
   children,
-
 }) => {
 
   const {
-
     user,
-
     loading,
-
   } = useAuth();
 
-  // ================================
-  // LOADING
-  // ================================
+  // ===================================
+  // LOADING SCREEN
+  // ===================================
   if (loading) {
 
     return (
@@ -84,6 +77,8 @@ const ProtectedRoute = ({
           color: "white",
 
           fontSize: "24px",
+
+          fontWeight: "bold",
         }}
       >
 
@@ -93,12 +88,12 @@ const ProtectedRoute = ({
     );
   }
 
-  // ================================
-  // NOT AUTHORIZED
-  // ================================
+  // ===================================
+  // NOT LOGGED IN
+  // ===================================
   if (!user) {
 
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
   return children;
@@ -111,177 +106,127 @@ function App() {
 
   return (
 
-    <BrowserRouter>
+    <Routes>
 
-      <Routes>
+      {/* ================================= */}
+      {/* LOGIN */}
+      {/* ================================= */}
+      <Route
+        path="/"
+        element={<Login />}
+      />
+      <Route
+  path="/signup"
+  element={<Signup />}
+/>
 
-        {/* ========================= */}
-        {/* LOGIN */}
-        {/* ========================= */}
-        <Route
-          path="/"
-          element={<Login />}
-        />
+      {/* ================================= */}
+      {/* PROTECTED LAYOUT */}
+      {/* ================================= */}
+      <Route
+        element={
 
-        {/* ========================= */}
-        {/* DASHBOARD */}
-        {/* ========================= */}
+          <ProtectedRoute>
+
+            <MainLayout />
+
+          </ProtectedRoute>
+        }
+      >
+
+        {/* DEFAULT */}
         <Route
           path="/dashboard"
-          element={
-
-            <ProtectedRoute>
-
-              <Dashboard />
-
-            </ProtectedRoute>
-          }
+          element={<Dashboard />}
         />
 
-        {/* ========================= */}
         {/* USERS */}
-        {/* ========================= */}
         <Route
           path="/users"
-          element={
-
-            <ProtectedRoute>
-
-              <Users />
-
-            </ProtectedRoute>
-          }
+          element={<Users />}
         />
 
-        {/* ========================= */}
         {/* DEVICES */}
-        {/* ========================= */}
         <Route
           path="/devices"
-          element={
-
-            <ProtectedRoute>
-
-              <Devices />
-
-            </ProtectedRoute>
-          }
+          element={<Devices />}
         />
 
-        {/* ========================= */}
         {/* TRACKING */}
-        {/* ========================= */}
         <Route
           path="/tracking"
-          element={
-
-            <ProtectedRoute>
-
-              <Tracking />
-
-            </ProtectedRoute>
-          }
+          element={<Tracking />}
         />
 
-        {/* ========================= */}
         {/* ALERTS */}
-        {/* ========================= */}
         <Route
           path="/alerts"
-          element={
-
-            <ProtectedRoute>
-
-              <Alerts />
-
-            </ProtectedRoute>
-          }
+          element={<Alerts />}
         />
 
-        {/* ========================= */}
-        {/* ANALYTICS */}
-        {/* ========================= */}
-        <Route
-          path="/analytics"
-          element={
-
-            <ProtectedRoute>
-
-              <Analytics />
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* SETTINGS */}
-        {/* ========================= */}
-        <Route
-          path="/settings"
-          element={
-
-            <ProtectedRoute>
-
-              <Settings />
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
         {/* SOS */}
-        {/* ========================= */}
         <Route
           path="/sos"
-          element={
-
-            <ProtectedRoute>
-
-              <SOSAlerts />
-
-            </ProtectedRoute>
-          }
+          element={<SOSAlerts />}
         />
 
-        {/* ========================= */}
-        {/* 404 */}
-        {/* ========================= */}
+        {/* ANALYTICS */}
         <Route
-          path="*"
-          element={
-
-            <div
-              style={{
-
-                height: "100vh",
-
-                display: "flex",
-
-                justifyContent:
-                  "center",
-
-                alignItems:
-                  "center",
-
-                background: "#020817",
-
-                color: "white",
-
-                fontSize: "40px",
-
-                fontWeight: "bold",
-              }}
-            >
-
-              404 Page Not Found
-
-            </div>
-          }
+          path="/analytics"
+          element={<Analytics />}
         />
 
-      </Routes>
+        {/* SECURITY */}
+        <Route
+          path="/security"
+          element={<Security />}
+        />
 
-    </BrowserRouter>
+        {/* SETTINGS */}
+        <Route
+          path="/settings"
+          element={<Settings />}
+        />
+
+      </Route>
+
+      {/* ================================= */}
+      {/* 404 */}
+      {/* ================================= */}
+      <Route
+        path="*"
+        element={
+
+          <div
+            style={{
+
+              height: "100vh",
+
+              display: "flex",
+
+              justifyContent:
+                "center",
+
+              alignItems:
+                "center",
+
+              background: "#020817",
+
+              color: "white",
+
+              fontSize: "42px",
+
+              fontWeight: "bold",
+            }}
+          >
+
+            404 Page Not Found
+
+          </div>
+        }
+      />
+
+    </Routes>
   );
 }
 

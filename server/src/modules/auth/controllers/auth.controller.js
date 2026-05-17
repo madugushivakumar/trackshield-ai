@@ -1,56 +1,93 @@
 const bcrypt =
-    require("bcryptjs");
+  require("bcryptjs");
 
 const jwt =
-    require("jsonwebtoken");
+  require("jsonwebtoken");
 
 const User =
-    require(
-      "../models/auth.model",
+  require(
+    "../models/auth.model",
+  );
+
+// =====================================
+// GENERATE TOKEN
+// =====================================
+const generateToken =
+  (id) => {
+
+    return jwt.sign(
+
+      {
+        id,
+      },
+
+      process.env.JWT_SECRET,
+
+      {
+        expiresIn: "7d",
+      },
     );
+  };
 
 // =====================================
 // REGISTER
 // =====================================
 const register =
-    async (req, res) => {
+  async (req, res) => {
 
-  try {
+    try {
 
-    const {
+      const {
+        name,
+        email,
+        password,
+      } = req.body;
 
-      name,
+      // =========================
+      // VALIDATION
+      // =========================
+      if (
+        !name ||
+        !email ||
+        !password
+      ) {
 
-      email,
-
-      password,
-    } = req.body;
-
-    // =========================
-    // CHECK EXISTING USER
-    // =========================
-    const existingUser =
-        await User.findOne({
-
-          email,
-        });
-
-    if (existingUser) {
-
-      return res.status(400)
+        return res.status(400)
           .json({
 
             success: false,
 
             message:
-                "User already exists",
+              "All fields are required",
           });
-    }
+      }
 
-    // =========================
-    // HASH PASSWORD
-    // =========================
-    const hashedPassword =
+      // =========================
+      // CHECK EXISTING USER
+      // =========================
+      const existingUser =
+        await User.findOne({
+
+          email:
+            email.toLowerCase(),
+        });
+
+      if (existingUser) {
+
+        return res.status(400)
+          .json({
+
+            success: false,
+
+            message:
+              "User already exists",
+          });
+      }
+
+      // =========================
+      // HASH PASSWORD
+      // =========================
+      const hashedPassword =
         await bcrypt.hash(
 
           password,
@@ -58,109 +95,128 @@ const register =
           10,
         );
 
-    // =========================
-    // CREATE USER
-    // =========================
-    const user =
+      // =========================
+      // CREATE USER
+      // =========================
+      const user =
         await User.create({
 
           name,
 
-          email,
+          email:
+            email.toLowerCase(),
 
           password:
-              hashedPassword,
+            hashedPassword,
         });
 
-    // =========================
-    // GENERATE TOKEN
-    // =========================
-    const token =
-        jwt.sign(
-
-          {
-
-            id:
-                user._id,
-          },
-
-          process.env.JWT_SECRET,
-
-          {
-
-            expiresIn:
-                "7d",
-          },
+      // =========================
+      // TOKEN
+      // =========================
+      const token =
+        generateToken(
+          user._id,
         );
 
-    res.status(201).json({
+      // =========================
+      // RESPONSE
+      // =========================
+      res.status(201).json({
 
-      success: true,
+        success: true,
 
-      token,
+        message:
+          "Registration successful",
 
-      user,
-    });
+        token,
 
-  } catch (error) {
+        user: {
 
-    console.log(
+          _id:
+            user._id,
 
-      "Register Error:",
+          name:
+            user.name,
 
-      error.message,
-    );
+          email:
+            user.email,
+        },
+      });
 
-    res.status(500).json({
+    } catch (error) {
 
-      success: false,
+      console.log(
+        "Register Error:",
+        error.message,
+      );
 
-      message:
+      res.status(500).json({
+
+        success: false,
+
+        message:
           "Server Error",
-    });
-  }
-};
+      });
+    }
+  };
 
 // =====================================
 // LOGIN
 // =====================================
 const login =
-    async (req, res) => {
+  async (req, res) => {
 
-  try {
+    try {
 
-    const {
+      const {
+        email,
+        password,
+      } = req.body;
 
-      email,
+      // =========================
+      // VALIDATION
+      // =========================
+      if (
+        !email ||
+        !password
+      ) {
 
-      password,
-    } = req.body;
-
-    // =========================
-    // FIND USER
-    // =========================
-    const user =
-        await User.findOne({
-
-          email,
-        });
-
-    if (!user) {
-
-      return res.status(400)
+        return res.status(400)
           .json({
 
             success: false,
 
             message:
-                "Invalid credentials",
+              "Email and password required",
           });
-    }
+      }
 
-    // =========================
-    // CHECK PASSWORD
-    // =========================
-    const isMatch =
+      // =========================
+      // FIND USER
+      // =========================
+      const user =
+        await User.findOne({
+
+          email:
+            email.toLowerCase(),
+        });
+
+      if (!user) {
+
+        return res.status(400)
+          .json({
+
+            success: false,
+
+            message:
+              "Invalid credentials",
+          });
+      }
+
+      // =========================
+      // CHECK PASSWORD
+      // =========================
+      const isMatch =
         await bcrypt.compare(
 
           password,
@@ -168,106 +224,120 @@ const login =
           user.password,
         );
 
-    if (!isMatch) {
+      if (!isMatch) {
 
-      return res.status(400)
+        return res.status(400)
           .json({
 
             success: false,
 
             message:
-                "Invalid credentials",
+              "Invalid credentials",
           });
-    }
+      }
 
-    // =========================
-    // TOKEN
-    // =========================
-    const token =
-        jwt.sign(
-
-          {
-
-            id:
-                user._id,
-          },
-
-          process.env.JWT_SECRET,
-
-          {
-
-            expiresIn:
-                "7d",
-          },
+      // =========================
+      // TOKEN
+      // =========================
+      const token =
+        generateToken(
+          user._id,
         );
 
-    res.status(200).json({
+      // =========================
+      // RESPONSE
+      // =========================
+      res.status(200).json({
 
-      success: true,
+        success: true,
 
-      token,
+        message:
+          "Login successful",
 
-      user,
-    });
+        token,
 
-  } catch (error) {
+        user: {
 
-    console.log(
+          _id:
+            user._id,
 
-      "Login Error:",
+          name:
+            user.name,
 
-      error.message,
-    );
+          email:
+            user.email,
+        },
+      });
 
-    res.status(500).json({
+    } catch (error) {
 
-      success: false,
+      console.log(
+        "Login Error:",
+        error.message,
+      );
 
-      message:
-          "Server Error",
-    });
-  }
-};
+      res.status(500)
+        .json({
+
+          success: false,
+
+          message:
+            "Server Error",
+        });
+    }
+  };
 
 // =====================================
 // PROFILE
 // =====================================
 const profile =
-    async (req, res) => {
+  async (req, res) => {
 
-  try {
+    try {
 
-    const user =
+      const user =
         await User.findById(
 
           req.user.id,
-        ).select("-password");
+        ).select(
+          "-password",
+        );
 
-    res.status(200).json({
+      if (!user) {
 
-      success: true,
+        return res.status(404)
+          .json({
 
-      user,
-    });
+            success: false,
 
-  } catch (error) {
+            message:
+              "User not found",
+          });
+      }
 
-    console.log(
+      res.status(200).json({
 
-      "Profile Error:",
+        success: true,
 
-      error.message,
-    );
+        user,
+      });
 
-    res.status(500).json({
+    } catch (error) {
 
-      success: false,
+      console.log(
+        "Profile Error:",
+        error.message,
+      );
 
-      message:
+      res.status(500).json({
+
+        success: false,
+
+        message:
           "Server Error",
-    });
-  }
-};
+      });
+    }
+  };
 
 module.exports = {
 

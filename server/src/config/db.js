@@ -1,52 +1,59 @@
 const mongoose =
-    require("mongoose");
+  require("mongoose");
 
 // =====================================
-// MONGODB CONNECTION
+// CONNECT DATABASE
 // =====================================
 const connectDB =
-    async () => {
+  async () => {
 
-  try {
+    try {
 
-    const connection =
+      // ===============================
+      // MONGODB CONNECTION
+      // ===============================
+      const connection =
         await mongoose.connect(
 
-      process.env.MONGO_URI,
+          process.env.MONGO_URI,
 
-      {
+          {
 
-        autoIndex: true,
+            autoIndex: true,
 
-        maxPoolSize: 10,
+            maxPoolSize: 10,
 
-        serverSelectionTimeoutMS:
-            5000,
+            serverSelectionTimeoutMS:
+              5000,
 
-        socketTimeoutMS:
-            45000,
-      },
-    );
+            socketTimeoutMS:
+              45000,
+          },
+        );
 
-    console.log(
+      console.log(
 
-      `MongoDB Connected: ${connection.connection.host}`,
-    );
+        `MongoDB Connected: ${connection.connection.host}`,
+      );
 
-  } catch (e) {
+    } catch (error) {
 
-    console.log(
-      "MongoDB Connection Failed:",
-      e.message,
-    );
+      console.log(
 
-    process.exit(1);
-  }
-};
+        "MongoDB Connection Failed:",
+
+        error.message,
+      );
+
+      process.exit(1);
+    }
+  };
 
 // =====================================
 // CONNECTION EVENTS
 // =====================================
+
+// CONNECTED
 mongoose.connection.on(
 
   "connected",
@@ -59,6 +66,7 @@ mongoose.connection.on(
   },
 );
 
+// DISCONNECTED
 mongoose.connection.on(
 
   "disconnected",
@@ -71,18 +79,24 @@ mongoose.connection.on(
   },
 );
 
+// ERROR
 mongoose.connection.on(
 
   "error",
 
-  (err) => {
+  (error) => {
 
     console.log(
+
       "MongoDB Event Error:",
-      err.message,
+
+      error.message,
     );
   },
 );
 
+// =====================================
+// EXPORT
+// =====================================
 module.exports =
-    connectDB;
+  connectDB;

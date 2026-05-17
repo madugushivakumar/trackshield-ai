@@ -78,7 +78,7 @@ const AnalyticsChart = () => {
     <div
       style={{
 
-        width: "100%",
+        width: "95%",
 
         height: "420px",
 
