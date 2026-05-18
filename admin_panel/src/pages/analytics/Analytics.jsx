@@ -1,51 +1,160 @@
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import AnalyticsChart from "../../components/charts/AnalyticsChart";
 
 import {
+  getAIAnalytics,
+  getAIStatus,
+  getRealtimeMonitor,
+} from "../../services/aiService";
 
+import {
   FaChartLine,
-
   FaShieldAlt,
-
   FaExclamationTriangle,
-
   FaServer,
-
   FaRobot,
-
   FaBroadcastTower,
-
   FaBug,
-
   FaDatabase,
-
   FaCloud,
-
   FaBrain,
-
   FaSatelliteDish,
-
   FaLock,
-
   FaWifi,
-
   FaGlobe,
-
   FaFire,
-
+  FaSyncAlt,
 } from "react-icons/fa";
-
 
 // =====================================
 // ANALYTICS PAGE
 // =====================================
 const Analytics = () => {
 
+  const [analytics, setAnalytics] =
+    useState(null);
+
+  const [monitor, setMonitor] =
+    useState(null);
+
+  const [aiStatus, setAIStatus] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  // ===================================
+  // LOAD AI DATA
+  // ===================================
+  const loadAIData =
+    async () => {
+
+      try {
+
+        setLoading(true);
+
+        const analyticsData =
+          await getAIAnalytics();
+
+        const monitorData =
+          await getRealtimeMonitor();
+
+        const statusData =
+          await getAIStatus();
+
+        setAnalytics(
+          analyticsData
+        );
+
+        setMonitor(
+          monitorData
+        );
+
+        setAIStatus(
+          statusData
+        );
+
+      } catch (error) {
+
+        console.log(
+          "AI Analytics Error:",
+          error
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  // ===================================
+  // INITIAL LOAD
+  // ===================================
+  useEffect(() => {
+
+    loadAIData();
+
+    // Realtime refresh
+    const interval =
+      setInterval(() => {
+
+        loadAIData();
+
+      }, 10000);
+
+    return () =>
+      clearInterval(interval);
+
+  }, []);
+
+  // ===================================
+  // LOADING
+  // ===================================
+  if (loading) {
+
+    return (
+
+      <div
+        style={{
+
+          height: "80vh",
+
+          display: "flex",
+
+          justifyContent:
+            "center",
+
+          alignItems:
+            "center",
+
+          color: "white",
+
+          fontSize: "24px",
+
+          gap: "14px",
+        }}
+      >
+
+        <FaSyncAlt
+          className="spin"
+        />
+
+        Loading AI Analytics...
+
+      </div>
+    );
+  }
+
   return (
 
     <div>
 
       {/* ================================= */}
-      {/* PAGE HEADER */}
+      {/* HEADER */}
       {/* ================================= */}
       <div
         style={{
@@ -91,12 +200,10 @@ const Analytics = () => {
             <p
               style={{
                 color: "#94a3b8",
-
-                fontSize: "16px",
               }}
             >
 
-              Enterprise realtime cyber intelligence and predictive threat analytics
+              Enterprise realtime cyber intelligence analytics
 
             </p>
 
@@ -130,7 +237,10 @@ const Analytics = () => {
 
             <FaBroadcastTower />
 
-            AI MONITORING ACTIVE
+            {
+              aiStatus?.engine ||
+              "ACTIVE"
+            }
 
           </div>
 
@@ -139,7 +249,7 @@ const Analytics = () => {
       </div>
 
       {/* ================================= */}
-      {/* PRIMARY STATS */}
+      {/* MAIN STATS */}
       {/* ================================= */}
       <div
         style={{
@@ -157,24 +267,36 @@ const Analytics = () => {
 
         <StatCard
           title="Security Events"
-          value="12,450"
-          subtitle="Realtime monitoring logs"
+          value={
+            analytics?.analytics
+              ?.overview
+              ?.active_alerts || 0
+          }
+          subtitle="Realtime AI logs"
           icon={<FaChartLine />}
           color="#2563eb"
         />
 
         <StatCard
           title="Protected Devices"
-          value="1,280"
-          subtitle="AI protected endpoints"
+          value={
+            analytics?.analytics
+              ?.overview
+              ?.total_devices || 0
+          }
+          subtitle="AI monitored devices"
           icon={<FaShieldAlt />}
           color="#22c55e"
         />
 
         <StatCard
-          title="Threats Blocked"
-          value="342"
-          subtitle="Critical attacks neutralized"
+          title="Blocked Threats"
+          value={
+            analytics?.analytics
+              ?.overview
+              ?.blocked_threats || 0
+          }
+          subtitle="Critical attacks stopped"
           icon={
             <FaExclamationTriangle />
           }
@@ -182,9 +304,13 @@ const Analytics = () => {
         />
 
         <StatCard
-          title="Cloud Servers"
-          value="48"
-          subtitle="Realtime infrastructure nodes"
+          title="Servers Online"
+          value={
+            analytics?.analytics
+              ?.network
+              ?.connected_servers || 0
+          }
+          subtitle="Cloud infrastructure"
           icon={<FaServer />}
           color="#f59e0b"
         />
@@ -192,7 +318,7 @@ const Analytics = () => {
       </div>
 
       {/* ================================= */}
-      {/* SECONDARY METRICS */}
+      {/* AI METRICS */}
       {/* ================================= */}
       <div
         style={{
@@ -210,36 +336,49 @@ const Analytics = () => {
 
         <MiniCard
           icon={<FaRobot />}
-          title="AI Detection Accuracy"
-          value="98.9%"
+          title="AI Accuracy"
+          value={
+            analytics?.analytics
+              ?.ai_metrics
+              ?.prediction_accuracy ||
+            "0%"
+          }
           color="#8b5cf6"
         />
 
         <MiniCard
           icon={<FaBrain />}
-          title="Predictive Intelligence"
-          value="ACTIVE"
+          title="AI Engine"
+          value={
+            analytics?.analytics
+              ?.ai_metrics
+              ?.ai_engine_status ||
+            "OFFLINE"
+          }
           color="#06b6d4"
         />
 
         <MiniCard
           icon={<FaBug />}
-          title="Malware Detection"
-          value="124"
+          title="Threat Scanner"
+          value={
+            monitor?.blocked_threats ||
+            0
+          }
           color="#dc2626"
         />
 
         <MiniCard
           icon={<FaLock />}
-          title="Zero-Day Protection"
-          value="ENABLED"
+          title="Realtime Security"
+          value="ACTIVE"
           color="#14b8a6"
         />
 
       </div>
 
       {/* ================================= */}
-      {/* MAIN ANALYTICS */}
+      {/* ANALYTICS GRID */}
       {/* ================================= */}
       <div
         style={{
@@ -255,12 +394,8 @@ const Analytics = () => {
         }}
       >
 
-        {/* ================================= */}
         {/* CHART */}
-        {/* ================================= */}
-        <div
-          style={mainCard}
-        >
+        <div style={mainCard}>
 
           <div
             style={{
@@ -280,7 +415,7 @@ const Analytics = () => {
               style={sectionSub}
             >
 
-              AI-powered realtime threat analytics engine
+              Live AI analytics engine
 
             </p>
 
@@ -290,12 +425,8 @@ const Analytics = () => {
 
         </div>
 
-        {/* ================================= */}
-        {/* THREAT STATUS */}
-        {/* ================================= */}
-        <div
-          style={mainCard}
-        >
+        {/* THREATS */}
+        <div style={mainCard}>
 
           <h2
             style={sectionTitle}
@@ -307,164 +438,39 @@ const Analytics = () => {
 
           <div
             style={{
-
-              marginTop: "25px",
-
-              display: "flex",
-
-              flexDirection:
-                "column",
-
-              gap: "18px",
-            }}
-          >
-
-            <ThreatItem
-              title="Critical Threats"
-              value="12"
-              color="#ef4444"
-            />
-
-            <ThreatItem
-              title="Medium Risk"
-              value="48"
-              color="#f59e0b"
-            />
-
-            <ThreatItem
-              title="Low Risk"
-              value="120"
-              color="#22c55e"
-            />
-
-            <ThreatItem
-              title="AI Predictions"
-              value="34"
-              color="#8b5cf6"
-            />
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* ================================= */}
-      {/* ADVANCED PANELS */}
-      {/* ================================= */}
-      <div
-        style={{
-
-          display: "grid",
-
-          gridTemplateColumns:
-            "repeat(auto-fit, minmax(320px, 1fr))",
-
-          gap: "24px",
-        }}
-      >
-
-        {/* ================================= */}
-        {/* INFRASTRUCTURE */}
-        {/* ================================= */}
-        <div
-          style={mainCard}
-        >
-
-          <h2
-            style={sectionTitle}
-          >
-
-            Infrastructure Status
-
-          </h2>
-
-          <div
-            style={{
               marginTop: "25px",
             }}
           >
 
-            <InfoRow
-              icon={<FaCloud />}
-              title="Cloud Security"
-              value="Operational"
-              color="#22c55e"
-            />
+            {
+              analytics?.analytics
+                ?.threat_report?.map(
+                  (
+                    item,
+                    index
+                  ) => (
 
-            <InfoRow
-              icon={<FaDatabase />}
-              title="Database Security"
-              value="Protected"
-              color="#06b6d4"
-            />
-
-            <InfoRow
-              icon={<FaWifi />}
-              title="Network Stability"
-              value="99.9%"
-              color="#f59e0b"
-            />
-
-            <InfoRow
-              icon={<FaGlobe />}
-              title="Global Nodes"
-              value="48 Active"
-              color="#8b5cf6"
-            />
-
-          </div>
-
-        </div>
-
-        {/* ================================= */}
-        {/* AI ENGINE */}
-        {/* ================================= */}
-        <div
-          style={mainCard}
-        >
-
-          <h2
-            style={sectionTitle}
-          >
-
-            AI Engine Status
-
-          </h2>
-
-          <div
-            style={{
-              marginTop: "25px",
-            }}
-          >
-
-            <InfoRow
-              icon={<FaBrain />}
-              title="Neural Engine"
-              value="Running"
-              color="#22c55e"
-            />
-
-            <InfoRow
-              icon={<FaSatelliteDish />}
-              title="Threat Scanner"
-              value="Active"
-              color="#06b6d4"
-            />
-
-            <InfoRow
-              icon={<FaFire />}
-              title="Attack Prevention"
-              value="Realtime"
-              color="#ef4444"
-            />
-
-            <InfoRow
-              icon={<FaRobot />}
-              title="AI Automation"
-              value="Enabled"
-              color="#8b5cf6"
-            />
+                    <ThreatItem
+                      key={index}
+                      title={
+                        item.type
+                      }
+                      value={
+                        item.count
+                      }
+                      color={
+                        index === 0
+                          ? "#ef4444"
+                          : index === 1
+                          ? "#f59e0b"
+                          : index === 2
+                          ? "#8b5cf6"
+                          : "#22c55e"
+                      }
+                    />
+                  )
+                )
+            }
 
           </div>
 
@@ -503,31 +509,8 @@ const StatCard = ({
         padding: "26px",
 
         color: "white",
-
-        position: "relative",
-
-        overflow: "hidden",
       }}
     >
-
-      <div
-        style={{
-
-          position: "absolute",
-
-          top: "-30px",
-
-          right: "-20px",
-
-          fontSize: "120px",
-
-          opacity: 0.05,
-        }}
-      >
-
-        {icon}
-
-      </div>
 
       <div
         style={{
@@ -560,12 +543,7 @@ const StatCard = ({
 
       <div
         style={{
-
           color: "#94a3b8",
-
-          marginBottom: "10px",
-
-          fontSize: "15px",
         }}
       >
 
@@ -580,7 +558,7 @@ const StatCard = ({
 
           fontWeight: "bold",
 
-          marginBottom: "10px",
+          margin: "10px 0",
         }}
       >
 
@@ -667,10 +645,7 @@ const MiniCard = ({
 
         <div
           style={{
-
             color: "#94a3b8",
-
-            marginBottom: "6px",
           }}
         >
 
@@ -720,14 +695,16 @@ const ThreatItem = ({
 
         alignItems: "center",
 
-        padding: "18px",
-
-        borderRadius: "16px",
+        padding: "16px",
 
         background: "#0f172a",
 
+        borderRadius: "14px",
+
         border:
           "1px solid #1e293b",
+
+        marginBottom: "14px",
       }}
     >
 
@@ -751,105 +728,7 @@ const ThreatItem = ({
           padding:
             "8px 14px",
 
-          borderRadius:
-            "10px",
-
-          fontWeight: "bold",
-        }}
-      >
-
-        {value}
-
-      </div>
-
-    </div>
-  );
-};
-
-// =====================================
-// INFO ROW
-// =====================================
-const InfoRow = ({
-  icon,
-  title,
-  value,
-  color,
-}) => {
-
-  return (
-
-    <div
-      style={{
-
-        display: "flex",
-
-        alignItems: "center",
-
-        justifyContent:
-          "space-between",
-
-        padding: "16px 0",
-
-        borderBottom:
-          "1px solid #1e293b",
-      }}
-    >
-
-      <div
-        style={{
-
-          display: "flex",
-
-          alignItems: "center",
-
-          gap: "14px",
-        }}
-      >
-
-        <div
-          style={{
-
-            width: "48px",
-
-            height: "48px",
-
-            borderRadius:
-              "14px",
-
-            background: color,
-
-            display: "flex",
-
-            justifyContent:
-              "center",
-
-            alignItems:
-              "center",
-
-            color: "white",
-          }}
-        >
-
-          {icon}
-
-        </div>
-
-        <div
-          style={{
-            color: "#cbd5e1",
-          }}
-        >
-
-          {title}
-
-        </div>
-
-      </div>
-
-      <div
-        style={{
-
-          color: "white",
+          borderRadius: "10px",
 
           fontWeight: "bold",
         }}

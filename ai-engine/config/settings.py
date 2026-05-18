@@ -14,12 +14,18 @@ class Settings(BaseSettings):
 
     DEBUG: bool = True
 
+    ENV: str = "development"
+
     # =====================================
     # SERVER
     # =====================================
     HOST: str = "0.0.0.0"
 
     PORT: int = 8000
+
+    FRONTEND_URL: str = (
+        "http://localhost:5173"
+    )
 
     # =====================================
     # DATABASE
@@ -37,6 +43,10 @@ class Settings(BaseSettings):
     # =====================================
     SECRET_KEY: str = (
         "trackshield_ai_secret"
+    )
+
+    JWT_SECRET: str = (
+        "trackshield_jwt_secret"
     )
 
     JWT_ALGORITHM: str = "HS256"
@@ -71,13 +81,15 @@ class Settings(BaseSettings):
     )
 
     # =====================================
-    # ENV
+    # CONFIG
     # =====================================
     class Config:
 
         env_file = ".env"
 
+        extra = "ignore"
+
 # =========================================
-# INSTANCE
+# SETTINGS INSTANCE
 # =========================================
 settings = Settings()
